@@ -1,0 +1,147 @@
+
+using 计算器工厂.Operations;
+
+namespace 计算机工厂 {
+    class Calculator {
+        // 优先级硬编码为数字，可读性差，可考虑使用枚举优化
+        public static readonly Dictionary<char, int> OperatorPrecedence = new Dictionary<char, int> {
+            {'+', 1},{'-', 1},{'*', 2},{'/', 2},
+            {'(', 0},{'（', 0},{'）', 0},{')', 0}
+        };
+        private static bool IsLeftBracket(char ch) {
+            return ch == '(' || ch == '（';
+        }
+        private static bool IsRightBracket(char ch) {
+            return ch == ')' || ch == '）';
+        }
+        // 初始化两个栈，用于存储计算结果和运算符
+        private static Stack<double> numbersStack = new Stack<double>();
+        private static Stack<char> operatorsStack = new Stack<char>();
+
+        public static bool CheckPriority(char newOperator,char oldOperator) {
+            if(OperatorPrecedence[oldOperator] == 0)return false;
+            if (OperatorPrecedence.ContainsKey(newOperator) && OperatorPrecedence.ContainsKey(oldOperator)) {
+                return OperatorPrecedence[newOperator] <= OperatorPrecedence[oldOperator] ? true : false;
+            }
+            else {
+                Console.WriteLine($"newOperator:{newOperator},oldOperator:{oldOperator}");
+                throw new NotSupportedException("不支持的运算符！");
+            }
+        }
+        // 修改 ParseNumber 方法
+        private static void ParseNumber(char[] formula, ref int i, List<char> numCharsList) {
+            if (formula[i] == '-' && IsNegativeSign(formula, i)) {
+                numCharsList.Add('-');
+                i++; // 跳过负号
+                     // 处理后续数字
+                while (i < formula.Length && (char.IsDigit(formula[i]) || formula[i] == '.')) {
+                    numCharsList.Add(formula[i]);
+                    i++;
+                }
+                i--; // 回退到最后一个数字字符的位置
+            }
+            else if (char.IsDigit(formula[i]) || formula[i] == '.') {
+                numCharsList.Add(formula[i]);
+            }
+            else {
+                // 非数字字符直接返回，由外层逻辑处理
+                return;
+            }
+        }
+        private static void PushNumberToStack(List<char> numCharsList) {
+            if (numCharsList.Count == 0)return;
+            double number = double.Parse(new string(numCharsList.ToArray()));
+            numbersStack.Push(number);
+            numCharsList.Clear();
+        }
+        public static double GetResult(string str) {
+            // 清空静态栈
+            numbersStack.Clear();
+            operatorsStack.Clear();
+
+            char[] formula;
+            if (string.IsNullOrEmpty(str)) {
+                throw new ArgumentNullException("输入为空！");
+            }
+            else {
+                formula = str.ToCharArray();
+            }
+
+            List<char> numCharsList = new List<char>();
+            for (int i = 0; i < formula.Length; i++) {
+                ParseNumber(formula, ref i, numCharsList);
+                if (i >= formula.Length)
+                    break;
+
+                if (IsLeftBracket(formula[i])) {
+                    operatorsStack.Push(formula[i]);
+                    continue;
+                }
+
+                if (IsRightBracket(formula[i])) {
+                    ProcessRightBracket();
+                    continue;
+                }
+
+                if (IsOperator(formula[i])) {
+                    ProcessOperator(formula[i]);
+                    continue;
+                }
+
+                TryPushNumber(numCharsList, i == formula.Length - 1);
+            }
+
+            TryPushNumber(numCharsList, true);
+            while (operatorsStack.Count > 0) {
+                PushResult();
+            }
+            return numbersStack.Pop();
+        }
+        private static void PushResult() {
+            double num2 = numbersStack.Pop(); // 第二个操作数
+            double num1 = numbersStack.Pop(); // 第一个操作数
+            char op = operatorsStack.Pop();
+            MyOperation myOperation = OperationFactory.CreatOperation(op, num1, num2); 
+            double results = myOperation.GetResult();
+            numbersStack.Push(results);
+        }
+        private static bool IsNegativeSign(char[] formula, int index) {
+            // 负号位于开头，或前一个字符是运算符/左括号
+            return index == 0 ||
+                   (formula[index - 1] == '(' || formula[index - 1] == '（' ||
+                    IsOperator(formula[index - 1]));
+        }
+
+        private static bool IsOperator(char c) {
+            return c == '+' || c == '-' || c == '*' || c == '/';
+        }
+        private static void ProcessRightBracket() {
+            // 处理右括号：弹出运算符直到左括号
+            while (!IsLeftBracket(operatorsStack.Peek())) {
+                PushResult();
+            }
+            if (operatorsStack.Count == 0) {
+                throw new ArgumentException("括号不匹配：缺少对应的左括号。");
+            }
+            operatorsStack.Pop(); // 弹出左括号
+        }
+        // 处理高优先级运算符
+        private static void ProcessOperator(char currentOp) {
+            while (operatorsStack.Count > 0 && ShouldProcessOperator(currentOp)) { // 栈空检查
+                PushResult();
+            }
+            operatorsStack.Push(currentOp);
+        }
+        private static bool ShouldProcessOperator(char newOperator) {
+            if (operatorsStack.Count == 0)
+                return false;
+            char stackTopOp = operatorsStack.Peek();
+            return CheckPriority(newOperator, stackTopOp);
+        }
+        private static void TryPushNumber(List<char> numCharsList, bool isEndOfExpression) {
+            if (numCharsList.Count > 0 || isEndOfExpression) {
+                PushNumberToStack(numCharsList);
+            }
+        }
+    }
+}
