@@ -18,13 +18,34 @@ namespace 计算器工厂.Operations {
                     _operatorMap[attr.Operator] = type;
                 }
             }
+            Console.Write("has: ");
+            foreach (var item in _operatorMap) {
+                Console.Write($"{item.Key}、");
+            }
+            Console.WriteLine();
         }
 
-        public static MyOperation CreatOperation(char op, double num1, double num2) {
+        /*public static MyOperation CreateOperation(char op, double num1, double num2) {
             if (!_operatorMap.TryGetValue(op, out Type operationType)) {
                 throw new NotSupportedException($"不支持的运算符：{op}");
             }
             return (MyOperation)Activator.CreateInstance(operationType, num1, num2);
+        }
+        public static MyOperation CreatOperation(char op) {
+            if (!_operatorMap.TryGetValue(op, out Type operationType)) {
+                throw new NotSupportedException($"不支持的运算符：{op}");
+            }
+            return (MyOperation)Activator.CreateInstance(operationType);
+        }*/
+        public static MyOperation CreateOperation(char op, params object[] args) {
+            if (!_operatorMap.TryGetValue(op, out Type operationType)) {
+                throw new NotSupportedException($"不支持的运算符：{op}");
+            }
+            return (MyOperation)Activator.CreateInstance(operationType, args);
+        }
+
+        public static bool IsOperator(char c) {
+            return _operatorMap.ContainsKey(c);
         }
     }
 

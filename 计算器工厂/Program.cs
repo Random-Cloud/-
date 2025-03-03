@@ -14,6 +14,9 @@ namespace 计算机工厂 {
                         Console.WriteLine("程序结束");
                         break;
                     }
+                    if (string.IsNullOrEmpty(str)) {
+                        throw new ArgumentNullException("输入为空！");
+                    }
                     double result = Calculator.GetResult(str);
                     result = Math.Round(result, 3);
                     Console.WriteLine($"{str}={result}");
@@ -21,7 +24,7 @@ namespace 计算机工厂 {
 
                 }
                 catch (Exception ex) {
-                    Console.WriteLine(ex.ToString());
+                    Console.WriteLine(ex.Message);
                 }
             }
             
