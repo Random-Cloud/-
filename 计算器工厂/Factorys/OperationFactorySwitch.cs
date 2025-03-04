@@ -1,9 +1,11 @@
-﻿namespace 计算器工厂.Operations {
+﻿using 计算器工厂.Operations;
+
+namespace 计算器工厂.Factorys {
     public class OperationFactorySwitch {
         // 运算工厂，使用Switch判断初始化对象,扩展时违反开放封闭原则，未使用
-       
-        
-        public static MyOperation CreatOperation(char op,double num2, double num1) {
+
+
+        public static MyOperation CreatOperation(char op, double num2, double num1) {
             MyOperation operation = new MyOperation();
             switch (op) {
                 case '+':

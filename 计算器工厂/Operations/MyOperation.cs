@@ -31,8 +31,6 @@
             }
         }
 
-
-
         public MyOperation(double num1, double num2) {
             Num1 = num1;
             Num2 = num2;
@@ -45,9 +43,6 @@
             double result = 0;
             return result;
         }
-
-        
-
     }
 
 }

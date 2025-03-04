@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
-namespace 计算器工厂 {
+namespace 计算器工厂.Logic {
     internal class BasicCalculator {
         // 四则运算计算器
         public double GetResult(double num1, double num2, char op) {

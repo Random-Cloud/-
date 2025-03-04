@@ -1,5 +1,4 @@
-﻿
-namespace 计算器工厂.Operations {
+﻿namespace 计算器工厂.Factorys {
     [AttributeUsage(AttributeTargets.Class)]
     internal class OperatorAttribute : Attribute {
         public char Operator {

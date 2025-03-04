@@ -1,8 +1,7 @@
-﻿
+﻿using System.Reflection;
+using 计算器工厂.Operations;
 
-using System.Reflection;
-
-namespace 计算器工厂.Operations {
+namespace 计算器工厂.Factorys {
     public class OperationFactory {
         // 使用反射生成对应的计算工厂，扩展时仅需新增对应计算类，无需修改工厂逻辑
         private static readonly Dictionary<char, Type> _operatorMap = new Dictionary<char, Type>();
@@ -25,18 +24,7 @@ namespace 计算器工厂.Operations {
             Console.WriteLine();
         }
 
-        /*public static MyOperation CreateOperation(char op, double num1, double num2) {
-            if (!_operatorMap.TryGetValue(op, out Type operationType)) {
-                throw new NotSupportedException($"不支持的运算符：{op}");
-            }
-            return (MyOperation)Activator.CreateInstance(operationType, num1, num2);
-        }
-        public static MyOperation CreatOperation(char op) {
-            if (!_operatorMap.TryGetValue(op, out Type operationType)) {
-                throw new NotSupportedException($"不支持的运算符：{op}");
-            }
-            return (MyOperation)Activator.CreateInstance(operationType);
-        }*/
+
         public static MyOperation CreateOperation(char op, params object[] args) {
             if (!_operatorMap.TryGetValue(op, out Type operationType)) {
                 throw new NotSupportedException($"不支持的运算符：{op}");

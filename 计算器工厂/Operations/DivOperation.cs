@@ -1,5 +1,5 @@
 ﻿using 计算器工厂.Operations;
-
+using 计算器工厂.Factorys;
 namespace 计算器工厂.Operations {
     [Operator('/')]
     public class DivOperation : MyOperation {
