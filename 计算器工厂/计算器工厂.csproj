@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="备份cal.txt" />
+    <None Remove="备份cal2.txt" />
+  </ItemGroup>
+
 </Project>
