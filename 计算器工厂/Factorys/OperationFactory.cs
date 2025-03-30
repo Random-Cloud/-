@@ -17,10 +17,7 @@ namespace 计算器工厂.Factorys {
                     _operatorMap[attr.Operator] = type;
                 }
             }
-            Console.Write("has: ");
-            foreach (var item in _operatorMap) {
-                Console.Write($"{item.Key}、");
-            }
+            
             Console.WriteLine();
         }
 

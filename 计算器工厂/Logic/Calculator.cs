@@ -1,10 +1,8 @@
 ﻿using 计算器工厂.ContextPackages;
-using 计算器工厂.Factorys;
 using 计算器工厂.FormulaHandlers;
-using 计算器工厂.Operations;
 
 namespace 计算器工厂.Logic {
-    class Calculator {
+    public class Calculator {
 
         private static FormulaHandler BuildHandlerChain() {
             // 初始化处理器链
@@ -24,20 +22,26 @@ namespace 计算器工厂.Logic {
             negativeHandler.SetNext(operatorHandler);
             return digitHandler;
         }
-
+        
         public static double GetResult(string str) {
-            char[] formula = ContextPackage.InitFormula(str);
-            var handlerChain = BuildHandlerChain(); 
+            try {
+                char[] formula = ContextPackage.InitFormula(str);
+                var handlerChain = BuildHandlerChain();
 
-            // 遍历字符时调用
-            for (int i = 0; i < formula.Length; i++) {
-                handlerChain.Handle(formula[i], i);
+                // 遍历字符时调用
+                for (int i = 0; i < formula.Length; i++) {
+                    handlerChain.Handle(formula[i], i);
+                }
+                ContextPackage.PushNumberToStack();
+                if (ContextPackage.operatorsStack.Count > 0) {
+                    ContextPackage.PushResult();
+                }
+                return ContextPackage.numbersStack.Pop();
             }
-            ContextPackage.PushNumberToStack();
-            if (ContextPackage.operatorsStack.Count > 0) {
-                ContextPackage.PushResult();
+            // 作者偷懒，不想处理大数运算，直接抛出异常
+            catch (OverflowException e) {
+                throw new OverflowException("计算结果溢出", e);
             }
-            return ContextPackage.numbersStack.Pop();
         }
 
         public static void clearAll() {

@@ -3,7 +3,11 @@ using 计算器工厂.Logic;
 
 namespace 计算机工厂 {
     internal class Program {
-        // 客户端代码
+        /// <summary>
+        /// 转换算式并计算结果，输入E或e结束程序；识别到异常时输出异常信息并清空栈
+        /// </summary>
+        /// <param name="args"></param>
+        /// <exception cref="ArgumentNullException">输入为空则禁止</exception>
         static void Main(string[] args) {
             bool run = true;
             while (run) {
