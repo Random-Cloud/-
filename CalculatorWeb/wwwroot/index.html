@@ -26,11 +26,34 @@
         .error {
             color: red;
         }
+
+        #history {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        #history-list {
+            counter-reset: list-counter; /* 禁用计数器 */
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        #session-history-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+
     </style>
 </head>
 <body>
     <div class="container">
         <h1>四则运算计算器</h1>
+        <h4>当前仅支持加减乘除运算</h4>
         <div class="input-group">
             <input type="text" id="expression" placeholder="输入算式，如(-3+5)*2" />
             <button onclick="calculate()">计算</button>
@@ -38,14 +61,19 @@
         </div>
         <div id="result"></div>
         <div id="error" class="error"></div>
+        <div id="current-session-history" style="margin-top: 20px; border-top: 1px solid #ddd;">
+            <h3>历史记录</h3>
+            <ul id="session-history-list"></ul>
+            <button onclick="clearSessionHistory()">清空当前记录</button>
+        </div>
     </div>
 
     <script>
         // 绑定回车键事件
-        document.getElementById("expression").addEventListener("keypress", function(e) {
+        document.getElementById("expression").addEventListener("keypress", function (e) {
             if (e.key === "Enter") calculate();
         });
-        // 调试输出
+        // 调试时输出
         function outPutLog(messages) {
             const allow = false;
             if (allow) {
@@ -74,8 +102,22 @@
                 const data = await response.json();
                 resultDiv.textContent = `${expression} = ${data.result}`;
                 outPutLog("第四步");
+
+                if (data.result !== undefined) {
+                    sessionHistory.unshift({
+                        expression,
+                        result: data.result,
+                        timestamp: Date.now()
+                    });
+
+                    // 控制最多保留10条记录
+                    if (sessionHistory.length > 10) sessionHistory.pop();
+
+                    renderSessionHistory();
+                }
+
             } catch (err) {
-                console.error(err.message+"麻了");
+                console.error(err.message + "麻了");
                 errorDiv.textContent = `错误：${err.message}`;
             }
         }
@@ -85,6 +127,40 @@
             document.getElementById("result").textContent = "";
             document.getElementById("error").textContent = "";
         }
+
+        // 当前会话历史存储（内存+sessionStorage双缓存）
+        let sessionHistory = [];
+
+        // 初始化时从sessionStorage加载（仅当前标签页有效）
+        function initSessionHistory() {
+            try {
+                const stored = sessionStorage.getItem('calcSessionHistory');
+                sessionHistory = stored ? JSON.parse(stored) : [];
+                renderSessionHistory();
+            } catch (e) {
+                console.error('历史记录加载失败:', e);
+            }
+        }
+
+        // 渲染当前会话历史
+        function renderSessionHistory() {
+            const list = document.getElementById('session-history-list');
+            list.innerHTML = sessionHistory.map((item, index) => `
+                <li>
+                    <span> ${item.expression} = ${item.result}</span>
+                </li>
+            `).join('');
+
+            // 同步到sessionStorage（可选，根据是否需要刷新保持）
+            sessionStorage.setItem('calcSessionHistory', JSON.stringify(sessionHistory));
+        }
+        function clearSessionHistory() {
+            sessionHistory = [];
+            sessionStorage.removeItem('calcSessionHistory');
+            renderSessionHistory();
+        }
+
+        document.addEventListener('DOMContentLoaded', initSessionHistory);
     </script>
 </body>
 </html>

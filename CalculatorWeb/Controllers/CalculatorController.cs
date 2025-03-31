@@ -9,7 +9,6 @@ public class CalculateController : ControllerBase {
     [HttpPost]
     public IActionResult Post([FromBody] CalculationRequest request) {
         try {
-            Console.WriteLine("进来了");
             double result = Calculator.GetResult(request.Expression);
             return Ok(new {
                 result = Math.Round(result, 3)
